@@ -90,6 +90,29 @@ app.get('/todos/:id', (req, res) => {
 });
 
 
+// ROUTE TO DELETE TODOS
+app.delete('/todos/:id', (req, res) => {
+  // use req obj params
+  // validate id using isValid
+  // find By Id then send back deleted todo
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  } else {
+    Todo.findByIdAndRemove(id).then((todo) => {
+      if(!todo) {
+        return res.status(404).send()
+      }
+      // success...
+      res.send({todo});
+    }).catch((e) => {
+      res.status(400).send();
+    })
+  }
+
+});
+
 
 app.listen(port, () => {
   console.log(`Server is lit on port ${port}`);
