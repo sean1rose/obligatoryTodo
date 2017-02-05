@@ -1,6 +1,7 @@
 // library imports
-var express = require('express');
-var bodyParser = require('body-parser');
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 // local imports
 var {ObjectID} = require('mongodb');
@@ -99,23 +100,53 @@ app.delete('/todos/:id', (req, res) => {
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
-  } else {
-    Todo.findByIdAndRemove(id).then((todo) => {
-      if(!todo) {
-        return res.status(404).send()
-      }
-      // success...
-      res.send({todo});
-    }).catch((e) => {
-      res.status(400).send();
-    })
   }
+  Todo.findByIdAndRemove(id).then((todo) => {
+    if(!todo) {
+      return res.status(404).send()
+    }
+    // success...
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
+  });
 
 });
 
+// patch to update a resource
+app.patch('/todos/:id', (req, res) => {
+  var id = req.params.id;
+  // req body is where updates will be stored. body has subset of things user passed to us (we don't want user to update anything and everything)
+  // need to pull off only properties that we want user to update, use _pick
+  var body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+  // check completed value, and using that to set completedAt to timestamp if true
+  if (_.isBoolean(body.completed) && body.completed) {
+    // set body.completedAt
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  // make query to update db (findByIdAndUpdate)
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo){
+      return res.status(404).send()
+    }
+
+    res.send({todo: todo});
+  }).catch((e) => {
+    res.status(400).send();
+  })
+})
+
 
 app.listen(port, () => {
-  console.log(`Server is lit! Poppin on port ${port}`);
+  console.log(`Server is litty!!! Poppin on port ${port}`);
 });
 
 module.exports = {app};
