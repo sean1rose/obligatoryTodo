@@ -8,6 +8,11 @@ var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
 var {Todo} = require('./models/todo');
 
+// mongodb uri:
+// mongodb://heroku_lptdfbfk:85vea6g2flpafe1kemvh6gl4t8@ds143449.mlab.com:43449/heroku_lptdfbfk
+
+// heroku app name: dry-dawn-37807
+
 const port = process.env.PORT || 3000;
 
 var app = express();
