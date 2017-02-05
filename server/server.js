@@ -115,7 +115,7 @@ app.delete('/todos/:id', (req, res) => {
 
 
 app.listen(port, () => {
-  console.log(`Server is lit on port ${port}`);
+  console.log(`Server is lit! Poppin on port ${port}`);
 });
 
 module.exports = {app};

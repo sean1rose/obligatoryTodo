@@ -127,4 +127,51 @@ describe('GET /todos/:id', () => {
       .expect(404)
       .end(done);
   });
+});
+
+describe('DELETE /todos/:id', () => {
+  it('should remove a todo', (done) => {
+    var hexId = todos[1]._id.toHexString();
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(200)
+      .expect((res) => {
+        // assert that id is id
+        expect(res.body.todo._id).toBe(hexId);
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        // make query to db using findById, which should fail and not exist 
+          // expect(todo).toNotExist()
+        Todo.findById(hexId).then((todo) => {
+          // assert that the todo we created exists..
+          // assert that there's 1 item in the db (but this assumes there's nothing already in the db, which is handled by the beforeEach lifecycle method)
+          expect(todo).toNotExist()
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+
+  it('should return 404 if todo not found', (done) => {
+    // make a request using a real obj id (but 1 that doesn't exist in the collection, so should get a 404 back)
+    var hexId = new ObjectID().toHexString();
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 for invalid object ids', (done) => {
+    // /todos/123
+
+    request(app)
+      .delete(`/todos/123`)
+      .expect(404)
+      .end(done);
+  });
 })
